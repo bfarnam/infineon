@@ -176,7 +176,7 @@ Kilis values are unique to each HSS type, are listed on the datasheets, and are 
 
 Rsense is a bit more confusing.  The output sense value supplied via the IS pin needs to be tied to ground in order to work properly.  On the shield documentation, schematic, and the provided library, this is referred to as Rsense.  However, in the datasheets, this is actually called Ris.  In both events, this is the value in Ohms of whatever resistor you have chosen to tie the IS pin to ground.  On the 24V shield this value is 1200 which is what is recommended on the datasheet.  This may differ if you custom implement this device.
 
-I have added all of the BTT60xx models and populated the killis from the datasheets.  I have also added some other struct members so the default types file (hss-types.cpp) from the official libraries is not compatible with this version.
+I have added all of the BTT60xx models and populated the kilis from the datasheets.  I have also added some other struct members so the default types file (hss-types.cpp) from the official libraries is not compatible with this version.
 
 ### Diagnostics
 Work in Progress
