@@ -1,11 +1,7 @@
 
 #include <stdint.h>
 #include "infineon.hpp"
-#include <Arduino.h>    // for pin functions
-
-// type alias for older c++ to be removed in IDE
-//using uint16_t = unsigned short;
-//using uint8_t = int;
+#include <Arduino.h>    // for pin functions while testing
 
 using namespace infineon;
 
@@ -18,8 +14,6 @@ BTx::~BTx()
 {
     // de-constructor
 }
-
-
 
 /**
  * Read ADC value for IS which is the calculated current, which is depending on the IS signal.

@@ -1,10 +1,6 @@
 
-#include <Arduino.h> // for pin definitions
+#include <Arduino.h> // for pin functions while testing
 #include "outputs.hpp"
-
-// type alias for older c++ to be removed in IDE
-//using uint16_t = unsigned short;
-//using uint8_t = int;
 
 namespace infineon
 {
@@ -56,4 +52,4 @@ namespace infineon
             .chipType    = &BTT60201ERA
     };
 
-} /**< end namespace infineon */
+} /**< end namespace infineon >**/

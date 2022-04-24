@@ -6,10 +6,6 @@
 #include <stdint.h>
 #include <unistd.h>
 
-// type alias for older c++ to be removed in IDE
-//using uint16_t = unsigned short;
-//using uint8_t = int;
-
 namespace infineon
 {
 
@@ -30,13 +26,13 @@ namespace infineon
 
         private:
 
-            uint16_t tau;   /**< Time constant */
+            uint16_t tau;   /**< Time constant >**/
 
-            float y;        /**< Output value */
-            float y_last;   /**< Last output value */
-            float x;        /**< Input value*/
+            float y;        /**< Output value >**/
+            float y_last;   /**< Last output value >**/
+            float x;        /**< Input value>**/
     };
 
-}
+} /**< end namespace infineon >**/
 
-#endif /** FILTER_HPP_ **/
+#endif /**< FILTER_HPP_ >**/
