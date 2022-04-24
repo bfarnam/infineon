@@ -5,7 +5,7 @@ The supplied Infineon Libraries for the PROFET swithces, namely the PROFET+ 24V 
 
 The original library can be referenced at the GitHub repository [Smart High-Side Switch Arduino Library](https://github.com/Infineon/arduino-high-side-switch)
 
-Additional, de-preciated libraries, which were used to create this library can be referenced here:
+Additional, depreciated libraries, which were used to create this library can be referenced here:
 
 [Smart High-Side Switch](https://github.com/Infineon/high-side-switch)
 
@@ -16,9 +16,9 @@ Additional, de-preciated libraries, which were used to create this library can b
 Infineon's Documentation can be referenced at [readthedocs.io](https://high-side-switch.readthedocs.io/en/latest/index.html)
 
 ## Major Changes
-Infineon's library requires almost ALL of the Arduuino UNO's pins, and henceforth, all the GPIO in an embedded paltform, making this useless to most people.
+Infineon's library requires almost ALL of the Arduino UNO's pins and thus all the GPIO in an embedded platform, making this useless to most people.
 
-Addtionally, differences in documentation between the Datasheets and the library documetnation vs. the actual code lines in the library make the implentation very cumbersone.
+Addtionally, differences between the datasheets and the library documentation vs. the actual code in the library make the implementation very cumbersone.
 
 The official Infineon Hackster page has an entry talking about [direct access](https://www.hackster.io/Infineon_Team/24v-protected-switch-shield-with-btt6030-2era-and-btt6020-1e-64ed44#toc-manually-controlling-the-shield-without-the-use-of-the-library-8) and they state that you have to use a PWM signal.
 >To control your output channels you'll have to send a pulse width modulated signal to each individual output channel pin.
@@ -66,7 +66,7 @@ This is merely the first rough draft (beta) after extracting the needed library 
 The original libraries are comprised of 33 files which take approximately 100KB of space before compile.  After dumping most of the wrappers and getting to the root of the function calls I ended up with 8 files which take approximately 22KB of space.
 
 ### Implementation
-For simple switch activation, you can ommit the library and just call the pins directly.  However, if you want to accurately read the current sense and used advanced features such as diagnostics, you need the library.  Most importantly, there is an exponential filter which is utilized to get the calibrated amperage return.
+For simple switch activation, you can ommit the library and just call the pins directly.  However, if you want to accurately read the current sense and used advanced features such as diagnostics, you will need eithier this library or the official libraries.  Most importantly, there is an exponential filter which is utilized to get the calibrated amperage return.
 
 The main method of implemenation is as follows:
 ```
@@ -75,7 +75,7 @@ using namespace infineon;
 BTx _myFriendlyName_;
 BTx();
 ```
-The PROFETS that you will be utilizing are defined in outputs.cpp to make referenceing them easier in your code and the struct is described and defined in outputs.hpp.  Currently this is not a dynamic struct array and the number is limited to no more than SIX outputs from any combination of PROFET devices.  The output names are hard defined in outputs.hpp as:
+The PROFETS that you will be utilizing are defined in outputs.cpp to make referencing them easier in your code and the struct is described and defined in outputs.hpp.  Currently this is not a dynamic struct array and the number is limited to no more than SIX outputs from any combination of PROFET devices.  The output names are hard defined in outputs.hpp as:
 - OUT10
 - OUT11
 - OUT20
@@ -83,7 +83,7 @@ The PROFETS that you will be utilizing are defined in outputs.cpp to make refere
 - OUT30
 - OUT31
 
-You will need to change these in order to utilize the advanced functions.  The struct is as follows:
+You will need to change the output definitions in outputs.cpp in order to utilize the advanced functions.  The struct is as follows:
 ```
 OutputConfig_t OUT10 = {
         .in          = {3,0x27},
@@ -94,11 +94,12 @@ OutputConfig_t OUT10 = {
 };
 ```
 Above the output OUT10 is configured for a 2 channel device but only defines the first channel.
-- .in is the High Side Switch (HSS) input channel GPIO target pin and the HEX address of the device used to access the HSS.  A HEX value of 0x99 assumes that the GPIO is handled natively.
-- .den is the HSS Diagnostic ENable (DEN) input.  A HEX value of 0x99 assumes that the GPIO is handled natively.
-- .dsel is the HSS Diagnostic SELection (DSEL) input and valid for 2 channel devices.  This is active LOW for the first channel and active HIGH for the second channel.  Since we are not creating an array that keeps track of this (takes to much memory) we pass to the handler the output value to select the channel described.  A HEX value of 0x99 assumes that the GPIO is handled natively.
-- .is is the sense current output from the HSS.  This must pass to an analog input.  A HEX value of 0x99 assumes that the GPIO is handled natively.
-- .chipType is the referenced struct for the actual HSS device.  These are defined in type_defs.cpp and have all of the information required for the current sense to work correctly.
+- **.in** is the High Side Switch (HSS) input channel GPIO target pin and the HEX address of the device used to access the HSS.  A HEX value of 0x99 assumes that the GPIO is handled natively.
+- **.den** is the HSS Diagnostic ENable (DEN) input.  A HEX value of 0x99 assumes that the GPIO is handled natively.
+- **.dsel** is the HSS Diagnostic SELection (DSEL) input and valid for 2 channel devices.  This is active LOW for the first channel and active HIGH for the second channel.  Since we are not creating an array that keeps track of this (takes too much memory) we pass to the handler the output value to select the channel described.  A HEX value of 0x99 assumes that the GPIO is handled natively.
+- **.is** is the sense current output from the HSS.  This must pass to an analog input.  A HEX value of 0x99 assumes that the GPIO is handled natively.
+- **.chipType** is the referenced struct for the actual HSS device.  These are defined in type_defs.cpp and have all of the information required for the current sense to work correctly.
+
 In order to define the second channel you would define OUT11 as follows:
 ```
 OutputConfig_t OUT11 = {
@@ -109,7 +110,7 @@ OutputConfig_t OUT11 = {
         .chipType    = &BTT60302ERA
 };
 ```
-The method of implemenation allows for your local code (or sub code) to perform the basic IO and uses the library for the advanced functions.
+The method of implementation allows for your local code (or sub code) to perform the basic IO and uses the library for the advanced functions.
 
 You will need a minimum of one local wrapper (function) in you main code or through a linked C++ file.  The local function takes the output name and utilizes the stuct (described above) to pass the required inputs to the main libraries.
 ```
@@ -130,7 +131,7 @@ When calling this from you main code you would utilize:
 ```
 nowAmps[2] = readCurrent(OUT20);
 ```
-nowAmps[] is my local array name and index location and OUT20 is the defined output from outputs.cpp.
+nowAmps[] is my local array name and index location and OUT20 is the defined output from outputs.cpp.  You can pass the return to any variable of type float.
 
 In the above example I utilize 2 local fucntions to enable/disable the DEN and DSEL becuase I am running this through an i2c bus.
 
@@ -166,7 +167,9 @@ void diag_select(OutputConfig_t *output)
     //Serial.println(msg);
 }
 ```
-The code in the main library for readIs will not attempt to enable DEN and DSEL if DSEL=0 hence the reason I have the local functions above.  This can be found in infineon.cpp.
+_myFriendlyName_.readIs which is found in infineon.cpp will not attempt to enable DEN and DSEL if DSEL=0 hence the reason I have the local functions above.
+
+
 
 <!-- 
 # Smart High-Side Switch Arduino Library
