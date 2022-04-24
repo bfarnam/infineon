@@ -8,47 +8,53 @@
 
 #include "type_defs.hpp"
 #include "filter.hpp"
+#include "outputs.hpp"
 
 // type alias for older c++ to be removed in IDE
-using uint16_t = unsigned short;
-using uint8_t = int;
+//using uint16_t = unsigned short;
+//using uint8_t = int;
 
 namespace infineon
 {
-	class btx
-	{
+    class BTx
+    {
 
-	public:
+        public:
+            BTx();
+            ~BTx();
 
-		btx();
-		~btx();
+            Error_t             enableDiag(uint8_t den);
+            Error_t             disableDiag(uint8_t den);
+            Status_t            getSwitchStatus(uint8_t pin);
+            DiagStatus_t        readDiagX(BTxChip_t *btxchip, uint8_t pin, uint8_t den, uint8_t dsel=0);
+            float               readIs(BTxChip_t *btxchip, uint8_t pin, uint8_t den, uint8_t dsel=0);
 
-        Error_t				enableDiag(uint8_t den);
-        Error_t				disableDiag(uint8_t den);
-        Status_t			getSwitchStatus(uint8_t pin);
-        DiagStatus_t		readDiagX(BTxChip_t *btxchip, uint8_t pin, uint8_t den, uint8_t dsel=0);
-        float				readIs(BTxChip_t *btxchip, uint8_t pin, uint8_t den, uint8_t dsel=0);
+            void                setCurrentOffset(float offset);
+            BTxChip_t           *btxChip;                 /**< BTx switch variant */
+            OutputConfig_t      *output;
 
-        void				setCurrentOffset(float offset);
+            DiagStatus_t         diagStatus;              /**< Diagnosis status */
+            DiagStatus_t         diagRead(float senseCurrent, BTxChip_t *btxchip);
 
-	protected:
 
-        ExponentialFilter	*currentFilter;			/**< Current filter */
+        protected:
 
-        BTxChip_t			*btxChip;				/**< BTx switch variant */
-        Status_t			status;					/**< Switch status */
+            ExponentialFilter    *currentFilter;          /**< Current filter */
 
-        DiagEnable_t		diagEnb;				/**< Diagnosis enabled flag */
-        DiagStatus_t		diagStatus;				/**< Diagnosis status */
-        DiagStatus_t		diagRead(float senseCurrent, BTxChip_t *btxchip);
+            //BTxChip_t            *btxChip;                /**< BTx switch variant */
+            Status_t             status;                  /**< Switch status */
 
-        Error_t				setDsel(uint8_t dsel=0);
+            DiagEnable_t         diagEnb;                 /**< Diagnosis enabled flag */
+            //DiagStatus_t         diagStatus;              /**< Diagnosis status */
+            //DiagStatus_t         diagRead(float senseCurrent, BTxChip_t *btxchip);
 
-	private:
+            Error_t              setDsel(uint8_t dsel=0);
 
-        float				currentOffset = 0.0;	/**< Diagnosis current offset */
+        private:
 
-	};
+            float                currentOffset = 0.0;     /**< Diagnosis current offset */
+
+    };
 
 } /** end namespace infineon */
 

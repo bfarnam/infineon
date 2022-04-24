@@ -2,8 +2,8 @@
 #include "filter.hpp"
 
 // type alias for older c++ to be removed in IDE
-using uint16_t = unsigned short;
-using uint8_t = int;
+//using uint16_t = unsigned short;
+//using uint8_t = int;
 
 using namespace infineon;
 

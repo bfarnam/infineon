@@ -1,47 +1,50 @@
 
 #include <stdint.h>
 #include "infineon.hpp"
-#include <Arduino.h>	// for pin functions
+#include <Arduino.h>    // for pin functions
 
 // type alias for older c++ to be removed in IDE
-using uint16_t = unsigned short;
-using uint8_t = int;
+//using uint16_t = unsigned short;
+//using uint8_t = int;
 
 using namespace infineon;
 
-btx::btx()
+BTx::BTx()
 {
-	// constructor
+    currentFilter = new ExponentialFilter(0.0, 0.3);
 }
 
-btx::~btx()
+BTx::~BTx()
 {
-	// de-constructor
+    // de-constructor
 }
+
+
 
 /**
  * Read ADC value for IS which is the calculated current, which is depending on the IS signal.
  * Returns the Value of the current flowing through the switch in [A]
  */
-float btx::readIs(BTxChip_t *btxchip, uint8_t pin, uint8_t den, uint8_t dsel=0)
+float BTx::readIs(BTxChip_t *btxchip, uint8_t pin, uint8_t den, uint8_t dsel=0)
 {
-	uint16_t adcVal = 0;
-	float isVoltage = 0.0;
-	float isCurrent = 0.0;
+    uint16_t adcVal = 0;
+    float isVoltage = 0.0;
+    float isCurrent = 0.0;
+    //Serial.println(String(btxchip->rSense)+":"+String(btxchip->kilis));
+    // dsel = 0 requires manual activation of den and dsel
+    if (dsel != 0) { enableDiag(den); }
+    if (dsel != 0) { digitalWrite(dsel, 0x0); }            //setDiagCh(dsel);
+    delay(1);                                              //timer->delayMilli(1);
+    adcVal = analogRead(pin);                              //adcVal = is->ADCRead();
+    isVoltage = (adcVal/1024.0)*5.0;
+    isCurrent = ( (isVoltage * btxchip->kilis) / btxchip->rSense ) - currentOffset;
+    //isCurrent = ( (isVoltage * 2240) / 1200 ) - currentOffset;
+    currentFilter->input(isCurrent);
 
-	enableDiag(den);
-	if (dsel != 0) { digitalWrite(dsel, 0x0); }			//setDiagCh(dsel);
+    if (dsel != 0) { digitalWrite(dsel, 0x1); }
+    if (dsel != 0) { disableDiag(den); }
 
-	delay(1); 											//timer->delayMilli(1);
-	adcVal = analogRead(pin); 							//adcVal = is->ADCRead();
-	isVoltage = (adcVal/1024.0)*5.0;
-	isCurrent = ((isVoltage*btxchip->kilis)/btxchip->rSense) - currentOffset;
-	currentFilter->input(isCurrent);
-
-	if (dsel != 0) { digitalWrite(dsel, 0x1); }
-	disableDiag(den);
-
-	return currentFilter->output();
+    return currentFilter->output();
 }
 
 /**
@@ -52,26 +55,26 @@ float btx::readIs(BTxChip_t *btxchip, uint8_t pin, uint8_t den, uint8_t dsel=0)
  * = 4   Short to battery
  * = 5   Open load
  */
-DiagStatus_t btx::readDiagX(BTxChip_t *btxchip, uint8_t pin, uint8_t den, uint8_t dsel=0)
+DiagStatus_t BTx::readDiagX(BTxChip_t *btxchip, uint8_t pin, uint8_t den, uint8_t dsel=0)
 {
-	DiagStatus_t diagStatus = NORMAL;
-	float currentOn = 0.0;
+    DiagStatus_t diagStatus = NORMAL;
+    float currentOn = 0.0;
 
-	enableDiag(den); 									//switches[hss]->enableDiag();
+    enableDiag(den);                                       //switches[hss]->enableDiag();
 
-	if(getSwitchStatus(pin) == POWER_ON)
-	{
-		currentOn = readIs(btxchip, pin, den, dsel=0);
-		diagStatus = diagRead(currentOn, btxchip);
-	}
-	else
-	{
-		// switch off read diagnosis
-	}
+    if(getSwitchStatus(pin) == POWER_ON)
+        {
+            currentOn = readIs(btxchip, pin, den, dsel=0);
+            diagStatus = diagRead(currentOn, btxchip);
+        }
+    else
+        {
+            // switch off read diagnosis
+        }
 
-	disableDiag(den); 									//switches[hss]->disableDiag();
+    disableDiag(den);                                      //switches[hss]->disableDiag();
 
-	return diagStatus;
+    return diagStatus;
 }
 
 /**
@@ -81,10 +84,10 @@ DiagStatus_t btx::readDiagX(BTxChip_t *btxchip, uint8_t pin, uint8_t den, uint8_
  * = 1  Fault condition detected
  * = 2  Open Load during ON or Inverse Current
  */
-DiagStatus_t btx::diagRead(float senseCurrent, BTxChip_t *btxchip)
+DiagStatus_t BTx::diagRead(float senseCurrent, BTxChip_t *btxchip)
 {
-	if(senseCurrent >= (btxchip->iisFault * btxchip->kilis)){
-        diagStatus = FAULT;
+    if(senseCurrent >= (btxchip->iisFault * btxchip->kilis)){
+            diagStatus = FAULT;
     }
     else if((btxchip->family == BTS700X) && (senseCurrent <= (btxchip->iisEn * btxchip->kilis))){
             diagStatus = FAULT_OL_IC;
@@ -96,7 +99,7 @@ DiagStatus_t btx::diagRead(float senseCurrent, BTxChip_t *btxchip)
             diagStatus = FAULT_OL_IC;
     }
     else{
-        diagStatus = NORMAL;
+            diagStatus = NORMAL;
     }
 
     return diagStatus;
@@ -107,75 +110,75 @@ DiagStatus_t btx::diagRead(float senseCurrent, BTxChip_t *btxchip)
  *  = 2   Power on
  *  = 3   Power off
  */
-Status_t btx::getSwitchStatus(uint8_t pin)
+Status_t BTx::getSwitchStatus(uint8_t pin)
 {
     uint8_t status = digitalRead(pin);
 
     if (status == 2)
-    {
-    	status = POWER_ON;
-    }
+        {
+            status = POWER_ON;
+        }
     else
-    {
-    	status = POWER_OFF;
-    }
-	return status;
+        {
+            status = POWER_OFF;
+        }
+    return status;
 }
 
 /**
  * Set current offset - This function can be used to change the value of the internal variable of the current offset (in A)
  */
-void btx::setCurrentOffset(float offset)
+void BTx::setCurrentOffset(float offset)
 {
     currentOffset = offset;
 }
 
-Error_t btx::enableDiag(uint8_t den)
+Error_t BTx::enableDiag(uint8_t den)
 {
     Error_t err = OK;
 
     if(den != 0)
-    {
-        digitalWrite(den, 0x1); 						//err = den->enable();
-        diagEnb = DIAG_EN;
-    }
+        {
+            digitalWrite(den, 0x1);                        //err = den->enable();
+            diagEnb = DIAG_EN;
+        }
     else
-    {
-        err = INIT_ERROR;
-    }
+        {
+            err = INIT_ERROR;
+        }
 
     return err;
 }
 
-Error_t btx::disableDiag(uint8_t den)
+Error_t BTx::disableDiag(uint8_t den)
 {
-	Error_t err = OK;
+    Error_t err = OK;
 
-	if(den != 0)
-	{
-		digitalWrite(den, 0x0); 						//err = den->enable();
-		diagEnb = DIAG_DIS;
-	}
-	else
-	{
-		err = INIT_ERROR;
-	}
+    if(den != 0)
+        {
+            digitalWrite(den, 0x0);                        //err = den->enable();
+            diagEnb = DIAG_DIS;
+        }
+    else
+        {
+            err = INIT_ERROR;
+        }
 
-	return err;
+    return err;
 }
 
-Error_t btx::setDsel(uint8_t dsel=0)
+Error_t BTx::setDsel(uint8_t dsel=0)
 {
-	Error_t err = OK;
+    Error_t err = OK;
 
-	if(dsel != 0)
-	{
-		digitalWrite(dsel, 0x0);
-	}
-	else
-	{
-		return INVALID_CH_ERROR;
-	}
+    if(dsel != 0)
+        {
+            digitalWrite(dsel, 0x0);
+        }
+    else
+        {
+            return INVALID_CH_ERROR;
+        }
 
-	return err;
+    return err;
 }
