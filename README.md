@@ -169,6 +169,18 @@ void diag_select(OutputConfig_t *output)
 ```
 _myFriendlyName_.readIs which is found in infineon.cpp will not attempt to enable DEN and DSEL if DSEL=0 hence the reason I have the local functions above.
 
+### Calibrated Current Sense
+The official Infineon library uses an exponential filter, the current sense ratio (kilis), and rSense values to display accurate amperage values.  The exponential filter is substantiated when the first call to BTx(); is made.   
+
+Kilis values are unique to each HSS type, are listed on the datasheets, and are stored inside a struct and defined in type_defs.cpp.  
+
+Rsense is a bit more confusing.  The output sense value supplied via the IS pin needs to be tied to ground in order to work properly.  On the shield documentation, schematic, and the provided library, this is referred to as Rsense.  However, in the datasheets, this is actually called Ris.  In both events, this is the value in Ohms of whatever resistor you have chosen to tie the IS pin to ground.  On the 24V shield this value is 1200 which is what is recommended on the datasheet.  This may differ if you custom implement this device.
+
+I have added all of the BTT60xx models and populated the killis from the datasheets.  I have also added some other struct members so the default types file (hss-types.cpp) from the official libraries is not compatible with this version.
+
+### Diagnostics
+Work in Progress
+
 
 
 <!-- 
