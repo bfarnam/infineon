@@ -30,7 +30,7 @@ The datasheet for the PROFET+ 24V High-side switch, such as the [BTT6030-2ERA](h
 
 If you finally trace ALL the library functions to the actual call which turns on the output you see that it performs an Arduino digitialWrite which is simply an ON/OFF.
 
-From one of the example files:
+From one of Infineon's example files:
 ```
     /** Turn on the selected channel */
     Serial.println("\nTurning on selected switch...");
