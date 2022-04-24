@@ -111,7 +111,7 @@ OutputConfig_t OUT11 = {
 ```
 The method of implemenation allows for your local code (or sub code) to perform the basic IO and uses the library for the advanced functions.
 
-From there calls are simply made providing all of the required IO pins.  In order to read current, you first would fefince a local function to parse together the propper output and keep track of the results if need be.  In this example two arrays are used to keep track of current and max values.
+You will need a minimum of one local wrapper (function) in you main code or through a linked C++ file.  The local function takes the output name and utilizes the stuct (described above) to pass the required inputs to the main libraries.
 ```
 float readCurrent(OutputConfig_t &output)
 {
@@ -132,8 +132,9 @@ nowAmps[2] = readCurrent(OUT20);
 ```
 nowAmps[] is my local array name and index location and OUT20 is the defined output from outputs.cpp.
 
-In this example I have created to local fucntions to enable/disable the DEN and DSEL becuase I am running this through an i2c bus:
+In the above example I utilize 2 local fucntions to enable/disable the DEN and DSEL becuase I am running this through an i2c bus.
 
+diag_enable:
 ```
 void diag_enable(OutputConfig_t *output, bool bOut)
 {
@@ -146,7 +147,10 @@ void diag_enable(OutputConfig_t *output, bool bOut)
     //msg = "DEN to 0x"+String(output->den[1], HEX)+":"+String(output->den[0],HEX)+" value "+String(bOut)+"\t@:"+String(millis());
     //Serial.println(msg);
 }
+```
 
+diag_select:
+```
 void diag_select(OutputConfig_t *output)
 {
     //Serial.println(String(output->dsel[1], HEX));
@@ -162,7 +166,7 @@ void diag_select(OutputConfig_t *output)
     //Serial.println(msg);
 }
 ```
-
+The code in the main library for readIs will not attempt to enable DEN and DSEL if DSEL=0 hence the reason I have the local functions above.  This can be found in infineon.cpp.
 
 <!-- 
 # Smart High-Side Switch Arduino Library
