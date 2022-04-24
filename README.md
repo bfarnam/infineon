@@ -1,11 +1,11 @@
 # infineon
 Custom Infineon PROFET Library for Embedded Applications using the AVR Platform.
 
-The supplied Infineon Libraries for the PROFET swithces, namely the PROFET+ 24V Shield, is a large and cumberson platform of code which is nice for doing raw testing on a supplied Infineon Shield, but is actually horrible if you wish to take your test platform and make something useful out of it.
+The supplied Infineon Libraries for the PROFET switches, namely the PROFET+ 24V Shield, is a large and cumberson platform of code which is nice for doing raw testing on a supplied Infineon Shield, but in actuality is horrible if you wish to take your test platform and make something useful out of it.
 
 The original library can be referenced at the GitHub repository [Smart High-Side Switch Arduino Library](https://github.com/Infineon/arduino-high-side-switch)
 
-Additional, depreciated libraries, which were used to create this library can be referenced here:
+Additional, depreciated libraries, which were used to create this library, can be referenced here:
 
 [Smart High-Side Switch](https://github.com/Infineon/high-side-switch)
 
@@ -18,14 +18,14 @@ Infineon's Documentation can be referenced at [readthedocs.io](https://high-side
 ## Major Changes
 Infineon's library requires almost ALL of the Arduino UNO's pins and thus all the GPIO in an embedded platform, making this useless to most people.
 
-Addtionally, differences between the datasheets and the library documentation vs. the actual code in the library make the implementation very cumbersone.
+Additionally, differences between the datasheets and the library documentation vs. the actual code in the library make the implementation very cumbersone.
 
 The official Infineon Hackster page has an entry talking about [direct access](https://www.hackster.io/Infineon_Team/24v-protected-switch-shield-with-btt6030-2era-and-btt6020-1e-64ed44#toc-manually-controlling-the-shield-without-the-use-of-the-library-8) and they state that you have to use a PWM signal.
 >To control your output channels you'll have to send a pulse width modulated signal to each individual output channel pin.
 
 **This is incorrect.**
 
-The datasheet for the PROFET+ 24V High-side switch, such as the [BTT6030-2ERA](https://www.infineon.com/dgdl/Infineon-BTT6030-2ERA-DS-v01_00-EN.pdf?fileId=5546d46269e1c019016a21fa44260d82) states that the input is:
+The datasheet for the PROFET+ 24V High-side switch, such as the [BTT6030-2ERA](https://www.infineon.com/dgdl/Infineon-BTT6030-2ERA-DS-v01_00-EN.pdf?fileId=5546d46269e1c019016a21fa44260d82) states that the input:
 >is either OFF or ON but cannot be in a linear or undefined state.  The input circuitry is compatible with PWM applications.
 
 If you finally trace ALL the library functions to the actual call which turns on the output you see that it performs an Arduino digitialWrite which is simply an ON/OFF.
@@ -58,7 +58,7 @@ Error_t GPIOIno::enable()
     return OK;
 }
 ```
-A simple LOW to HIGH transition will activate the selected BTx input.  Additionally, this has been confirmed to work with GPIO expanders such as the TCA9534/PCA9534 which is an open-drain with internal pull-up output and the TCA9538/PCA9538 which is a push-pull (totem pole) style ourput with no internal pull-up.
+A simple LOW to HIGH transition will activate the selected BTx input.  Additionally, this has been confirmed to work with GPIO expanders such as the TCA9534/PCA9534, which is an open-drain with internal pull-up output, and the TCA9538/PCA9538, which is a push-pull (totem pole) style output with no internal pull-up.
 
 ### Revisions
 This is merely the first rough draft (beta) after extracting the needed library functions for my needs.  Some of the private and protected functions were made public since a lot of the original library was tossed.  As I get time to clean and polish this up I will.
@@ -66,9 +66,9 @@ This is merely the first rough draft (beta) after extracting the needed library 
 The original libraries are comprised of 33 files which take approximately 100KB of space before compile.  After dumping most of the wrappers and getting to the root of the function calls I ended up with 8 files which take approximately 22KB of space.
 
 ### Implementation
-For simple switch activation, you can ommit the library and just call the pins directly.  However, if you want to accurately read the current sense and used advanced features such as diagnostics, you will need eithier this library or the official libraries.  Most importantly, there is an exponential filter which is utilized to get the calibrated amperage return.
+For simple switch activation, you can ommit the library and just call the pins directly.  However, if you want to accurately read the current sense and used advanced features such as diagnostics, you will need either this library or the official libraries.  Most importantly, there is an exponential filter which is utilized to get the calibrated amperage return.
 
-The main method of implemenation is as follows:
+The main method of implementation is as follows:
 ```
 #include "infineon.hpp"
 using namespace infineon;
@@ -93,10 +93,10 @@ OutputConfig_t OUT10 = {
         .chipType    = &BTT60302ERA
 };
 ```
-Above the output OUT10 is configured for a 2 channel device but only defines the first channel.
+Above the output OUT10 is configured for a 2-channel device but only defines the first channel.
 - **.in** is the High Side Switch (HSS) input channel GPIO target pin and the HEX address of the device used to access the HSS.  A HEX value of 0x99 assumes that the GPIO is handled natively.
 - **.den** is the HSS Diagnostic ENable (DEN) input.  A HEX value of 0x99 assumes that the GPIO is handled natively.
-- **.dsel** is the HSS Diagnostic SELection (DSEL) input and valid for 2 channel devices.  This is active LOW for the first channel and active HIGH for the second channel.  Since we are not creating an array that keeps track of this (takes too much memory) we pass to the handler the output value to select the channel described.  A HEX value of 0x99 assumes that the GPIO is handled natively.
+- **.dsel** is the HSS Diagnostic SELection (DSEL) input and valid for 2-channel devices.  This is active LOW for the first channel and active HIGH for the second channel.  Since we are not creating an array that keeps track of this (takes too much memory) we pass to the handler the output value to select the channel described.  A HEX value of 0x99 assumes that the GPIO is handled natively.
 - **.is** is the sense current output from the HSS.  This must pass to an analog input.  A HEX value of 0x99 assumes that the GPIO is handled natively.
 - **.chipType** is the referenced struct for the actual HSS device.  These are defined in type_defs.cpp and have all of the information required for the current sense to work correctly.
 
@@ -112,7 +112,7 @@ OutputConfig_t OUT11 = {
 ```
 The method of implementation allows for your local code (or sub code) to perform the basic IO and uses the library for the advanced functions.
 
-You will need a minimum of one local wrapper (function) in you main code or through a linked C++ file.  The local function takes the output name and utilizes the stuct (described above) to pass the required inputs to the main libraries.
+You will need a minimum of one local wrapper (function) in your main code or through a linked C++ file.  The local function takes the output name and utilizes the stuct (described above) to pass the required inputs to the main libraries.
 ```
 float readCurrent(OutputConfig_t &output)
 {
@@ -127,13 +127,13 @@ float readCurrent(OutputConfig_t &output)
     return readAmps;
 }
 ```
-When calling this from you main code you would utilize:
+When calling this from your main code you would utilize:
 ```
 nowAmps[2] = readCurrent(OUT20);
 ```
 nowAmps[] is my local array name and index location and OUT20 is the defined output from outputs.cpp.  You can pass the return to any variable of type float.
 
-In the above example I utilize 2 local fucntions to enable/disable the DEN and DSEL becuase I am running this through an i2c bus.
+In the above example I utilize 2 local functions to enable/disable the DEN and DSEL becuase I am running this through an i2c bus.
 
 diag_enable:
 ```
@@ -229,7 +229,7 @@ The complete relevant Arduino documentation (and more) can be found in the base 
 
 ### Contributing
 
-This is a release repository for the Arduino framework. The code base is maintained and developed in the High-side Switch Cross-Framework-Platform (XFP) library [repository](https://github.com/infineon/high-side-switch). 
+This is a release repository for the Arduino framework. The code base is maintained and developed in the High-Side Switch Cross-Framework-Platform (XFP) library [repository](https://github.com/infineon/high-side-switch). 
 
 ### License
 
