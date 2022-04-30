@@ -1,3 +1,4 @@
+// verified uint8_t is an unsigned 8bit int 0-255 same as byte on arduino platform
 
 #include <stdint.h>
 #include "infineon.hpp"
